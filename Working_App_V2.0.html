@@ -1,0 +1,204 @@
+<html>
+	<head>
+		<title>Application</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"></link>
+	</head>
+	<body style="background-image: url('wApp_BckGrnd.jpg');">
+		<style>
+            .styleDiv{
+				font-weight:bold;
+				font-family: "Droid Sans";
+				font-size: 30px;
+				padding-top: 20px;
+				padding-bottom: 5px;
+			}
+			.headr{
+				height: 75px;
+				background-color: rgb(191, 235, 239);
+				background-image: url("wApp_Swirls.png");
+				border: 3px solid steelblue;
+				border-bottom-right-radius: 25px;
+				border-bottom-left-radius: 25px;
+			}
+			.outerBlock{
+				margin-left: 15%;
+				margin-right: 15%;
+			}
+			.col-xs-6{
+				padding-top: 5px;
+				padding-bottom: 5px;
+			}
+			.col-xs-12{
+				padding-top: 10px;
+				padding-bottom: 5px;
+			}
+			.inputForm{
+				padding-top: 2px;
+				padding-bottom: 2px;
+				height: 200px;
+			}
+			.sprtrLine{
+				background-color: steelblue;
+				height: 4px;
+				border-radius: 1px;
+			}
+			#hdrStyle{
+				text-align: center;
+				padding-top: 5px;
+				font-family: "Droid Sans";
+				font-size: 35px;
+				animation: my_animation 5s;
+				animation-iteration-count: infinite;
+				animation-direction: alternate;
+			}
+			@keyframes my_animation {
+                from { margin-left: 30%; color: black;}
+                to { margin-right: 30%; color: steelblue;}
+            }
+		</style>
+		<div class="outerBlock">
+			<div class="headr">
+				<div id="hdrStyle">
+					Jnaapti - App
+				</div>
+			</div>
+			<div class="styleDiv">Enter Details</div>
+			<div class="inputForm">
+				<div class="col-xs-6">
+					<label for="name">Name</label>
+					<input type="text" class="form-control input-sm" id="name" placeholder="Enter your Name">
+				</div>
+				<div class="col-xs-6">
+					<label for="emailid">Email</label>
+					<input type="email" class="form-control input-sm" id="email" placeholder="Enter your Email Address">
+				</div>
+				<div class="col-xs-6">
+					<label for="place">Place</label>
+					<input type="text" class="form-control input-sm" id="place" placeholder="Enter your Place">
+				</div>
+				<div class="col-xs-6">
+					<label for="phone">Mobile</label>
+					<input type="tel" class="form-control input-sm" id="phone" placeholder="Enter your 10 digit Mobile Number">
+				</div>
+				<div class="col-xs-6">
+					<button type="button" class="btn btn-primary" id="addPpl">Submit</button>
+				</div>
+				<div class="col-xs-6" style="text-align: right;font-weight:bold">NOTE: all the above fields are compulsary!!</div>
+			</div>
+			<div class="sprtrLine"></div>
+			<div class="styleDiv">Table of People</div>
+			<div id="dtTable"></div>
+		</div>
+		<script>
+			
+			$(document).ready(function() {
+				window.prsn = new Object();
+				updateTable();
+			});
+			
+			updateGlobalObj = function(tmpObj) {
+				var counter = 0;
+				do {
+					counter++;
+				} while(prsn.hasOwnProperty(counter)); 
+				
+				prsn[counter] = tmpObj;
+				updateTable();
+			}
+			
+			updateTable = function() {
+				var rtrn = new Array();
+				for (var key in prsn) {
+					var prsnObj = prsn[key];
+					var tmpArr = new Array();
+					for (var prop in prsnObj) {
+						if (prsnObj.hasOwnProperty(prop)){
+							tmpArr.push(prsnObj[prop]);
+						}
+					}
+					rtrn.push(tmpArr);
+				}
+				$('#dtTable').html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="try"></table>');
+                $('#try').dataTable( {
+                    "aaData": rtrn,
+                    "aoColumns": [
+                        { "sTitle": "Name" },
+                        { "sTitle": "Email Address" },
+                        { "sTitle": "Place" },
+                        { "sTitle": "Phone", "sClass": "center" }
+                    ]
+                } );
+			}
+			
+			var validator = {
+				isEmpty : function(elem) {
+					if($(elem).val().toString().length === 0) {
+						return true;
+					}
+					return false;
+				},
+				isPhone : function(elem) {
+					var mobileNo = $(elem).val().toString();
+					var mobileRegex = "^[7-9][0-9]{9}$";
+					if(!mobileNo.match(mobileRegex)) {
+						return false;
+					}
+					return true;
+				},
+				isEmail : function(emailElem) {
+					var emailString = $(emailElem).val().toString();
+					var emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$";
+					if(!emailString.match(emailRegex)) {
+						return false;
+					}
+					return true;
+				}
+			}
+			
+			validateForm = function() {
+				if(validator.isEmpty('#name')) {
+					alert("Name field should not be empty");
+					$('#name').focus();
+					return false;
+				}
+				if(!validator.isEmail('#email')) {
+					alert("Provided email is not valid");
+					$('#email').focus();
+					return false;
+				}
+				if(validator.isEmpty('#place')) {
+					alert("Place field should not be empty");
+					$('#place').focus();
+					return false;
+				}
+				if(!validator.isPhone('#phone')) {
+					alert("Please enter a valid mobile number");
+					$('#phone').focus();
+					return false;
+				}
+				return true;
+			}
+			
+			$('#addPpl').click(function() {
+				if(validateForm()) {
+					var tmpPrsn = {name: "", email: "", place: "", phone: ""};
+					console.log("Event triggered");
+					tmpPrsn.name = $('#name').val();
+					tmpPrsn.email = $('#email').val()
+					tmpPrsn.place = $('#place').val()
+					tmpPrsn.phone = $('#phone').val()
+					console.log("Entered: " + tmpPrsn.name + tmpPrsn.email + tmpPrsn.place + tmpPrsn.phone);
+					updateGlobalObj(tmpPrsn);
+					$('#name').val('');
+					$('#email').val('');
+					$('#place').val('');
+					$('#phone').val('');
+				}
+			});
+			$().submit(function() {return false;})
+		</script>
+	</body>
+</html>
